@@ -47,12 +47,6 @@ def loadAnalyzer(analyzer):
     addRouteConnection crea conexiones entre diferentes rutas
     servidas en una misma estación.
     """
-    servicesfile = cf.data_dir + "connections.csv"
-    input_file = csv.DictReader(open(servicesfile, encoding="utf-8"),
-                                delimiter=",")
-    for service in input_file:
-        model.addLandingPoint(analyzer, service)
-
     landingsfile = cf.data_dir + "landing_points.csv"
     input_file = csv.DictReader(open(landingsfile, encoding="utf-8"),
                                 delimiter=",")
@@ -63,7 +57,16 @@ def loadAnalyzer(analyzer):
     input_file = csv.DictReader(open(countriessfile, encoding="utf-8"),
                                 delimiter=",")
     for country in input_file:
-        model.loadCountry(analyzer, country)
+        model.loadCountries(analyzer, country)
+    
+    servicesfile = cf.data_dir + "connections.csv"
+    input_file = csv.DictReader(open(servicesfile, encoding="utf-8"),
+                                delimiter=",")
+    for service in input_file:
+        model.addLandingPoint(analyzer, service)
+    model.conectarCapitales(analyzer)
+
+
     return analyzer
 
 
@@ -71,22 +74,30 @@ def loadAnalyzer(analyzer):
 
 # Funciones de consulta sobre el catálogo
 
-def connected(analyzer):
+def landingPoints(analyzer):
     """
-    Numero de componentes fuertemente conectados
+    Retorna el total de landing points (vertices) del grafo
     """
-    return model.connected(analyzer)
-
-
-def totalStops(analyzer):
-    """
-    Total de paradas de autobus
-    """
-    return model.totalStops(analyzer)
-
+    return model.landingPoints(analyzer)
 
 def totalConnections(analyzer):
     """
-    Total de enlaces entre las paradas
+    Retorna el total arcos del grafo
     """
     return model.totalConnections(analyzer)
+
+
+def totalCountries(analyzer):
+    return model.totalCountries(analyzer)
+
+def informacionLanding(analyzer):
+    return model.informacionLanding(analyzer)
+
+def informacionCountries(analyzer):
+    return model.informacionCountries(analyzer)
+
+def connectedComponents(analyzer):
+    return model.connectedComponents(analyzer)
+    
+def sameCluster(analyzer, origen, destino):
+    return model.sameCluster(analyzer, origen, destino)
