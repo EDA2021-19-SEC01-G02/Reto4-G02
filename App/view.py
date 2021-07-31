@@ -1,4 +1,4 @@
-﻿"""
+"""
  * Copyright 2020, Departamento de sistemas y Computación, Universidad
  * de Los Andes
  *
@@ -53,18 +53,27 @@ while True:
     if int(inputs[0]) == 1:
         print("Cargando información de los archivos ....")
         catalog = controller.initCatalog()
-        numedges = controller.totalConnections(catalog)
-        numvertex = controller.totalStops(catalog)
+        controller.loadAnalyzer(catalog)
+        numedges = controller.landingPoints(catalog)
+        numvertex = controller.totalConnections(catalog)
+        primero = controller.informacionLanding(catalog)
+        countries = controller.totalCountries(catalog)
+        informacion = controller.informacionCountries(catalog)
         print('Total landing points: ' + str(numedges))
         print('Total conexiones landing points: ' + str(numvertex))
-        print('Id Primer landing point: ' + str() + "Nombre"  + str() + "latitud" + str() + "longitud")
-        print('Paises cargados: ' + str())
+        print(' Id Primer landing point: ' + str(primero['landing_point_id']) + " ID: "  + str(primero["id"]) + " Nombre: "  + str(primero["name"]) + " Latitud: " + str(primero["latitude"]) + " Longitud: " + str(primero["longitude"]))
+        print('Paises cargados: ' + str(countries))
+        print('Poblacion ultimo pais cargado: ' + str(informacion["Population"]) + ' Usuarios de internet ultimo pais cargado: ' + str(informacion["Internet users"]))
+
 
     elif int(inputs[0]) == 2:
         lp1 = input("Ingrese el nombre del landing point 1: ")
-        lp2 = input("Ingrese el nombre del landing point 2: ")        answer= controller.timeLikes(catalog, category_name, country, numerovideos)
-        cluster = controller.getPertenece(lp1,lp2)
-        printPertenece(cluster)
+        lp2 = input("Ingrese el nombre del landing point 2: ")
+        conected = controller.connectedComponents(catalog)    
+        cluster = controller.sameCluster(catalog,lp1,lp2)
+        print('Elementos fuertemenete conectados: ' + str(conected))
+        print('Los dos landing points pertenecen al mismo cluster : ' + str(cluster))
+    
 
     else:
         sys.exit(0)
