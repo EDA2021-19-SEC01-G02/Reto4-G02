@@ -37,7 +37,10 @@ operación solicitada
 def printMenu():
     print("Bienvenido")
     print("1- Cargar información en el catálogo")
-    print("2- ")
+    print("2- Consultar clusteres y landing points :")
+    print("3- Encontrar ruta minima para envio de informacion:")
+    print("4- Consultar infraestructura critica: ")
+    print("0- Salir")
 
 catalog = None
 
@@ -49,9 +52,19 @@ while True:
     inputs = input('Seleccione una opción para continuar\n')
     if int(inputs[0]) == 1:
         print("Cargando información de los archivos ....")
+        catalog = controller.initCatalog()
+        numedges = controller.totalConnections(catalog)
+        numvertex = controller.totalStops(catalog)
+        print('Total landing points: ' + str(numedges))
+        print('Total conexiones landing points: ' + str(numvertex))
+        print('Id Primer landing point: ' + str() + "Nombre"  + str() + "latitud" + str() + "longitud")
+        print('Paises cargados: ' + str())
 
     elif int(inputs[0]) == 2:
-        pass
+        lp1 = input("Ingrese el nombre del landing point 1: ")
+        lp2 = input("Ingrese el nombre del landing point 2: ")        answer= controller.timeLikes(catalog, category_name, country, numerovideos)
+        cluster = controller.getPertenece(lp1,lp2)
+        printPertenece(cluster)
 
     else:
         sys.exit(0)
