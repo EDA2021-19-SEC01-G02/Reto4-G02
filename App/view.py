@@ -65,6 +65,8 @@ while True:
         print('Paises cargados: ' + str(countries))
         print('Poblacion ultimo pais cargado: ' + str(informacion["Population"]) + ' Usuarios de internet ultimo pais cargado: ' + str(informacion["Internet users"]))
 
+        
+
 
     elif int(inputs[0]) == 2:
         lp1 = input("Ingrese el nombre del landing point 1: ")
@@ -73,6 +75,11 @@ while True:
         cluster = controller.sameCluster(catalog,lp1,lp2)
         print('Elementos fuertemenete conectados: ' + str(conected))
         print('Los dos landing points pertenecen al mismo cluster : ' + str(cluster))
+
+    elif int(inputs[0]) == 3:
+        c1 = input("Ingrese el nombre del país de origen: ")
+        c2 = input("Ingrese el nombre del país destino: ")
+        minimum = controller.minimumPath(catalog, c1, c2)
     
 
     else:

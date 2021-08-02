@@ -33,6 +33,7 @@ from DISClib.ADT import map as mp
 from DISClib.DataStructures import mapentry as me
 from DISClib.Algorithms.Graphs import scc
 from DISClib.ADT import orderedmap as om
+from DISClib.Algorithms.Graphs import dijsktra as djk
 assert cf
 
 """
@@ -57,20 +58,21 @@ def newAnalyzer():
                     'ids': None,
                     'countriesinfo': None,
                     'capitales': None,
-                    'components': None
+                    'components': None,
+                    'paths': None
                     }
 
     analyzer['landing'] = mp.newMap(numelements=14000,
                                      maptype='PROBING')
 
-    analyzer['countries'] = om.newMap(omaptype='RBT',
-                                     comparefunction=compareCountries)
+    analyzer['countries'] = mp.newMap(numelements=14000,
+                                     maptype='PROBING')
 
-    analyzer['capitales'] = om.newMap(omaptype='RBT',
-                                     comparefunction=compareCountries)
+    analyzer['capitales'] = mp.newMap(numelements=14000,
+                                     maptype='PROBING')
     
-    analyzer['countriesinfo'] = om.newMap(omaptype='RBT',
-                                     comparefunction=compareCountries)
+    analyzer['countriesinfo'] = mp.newMap(numelements=14000,
+                                     maptype='PROBING')
 
     analyzer['ids'] = mp.newMap(numelements=14000,
                                      maptype='PROBING')
@@ -125,33 +127,33 @@ def addCapital(analyzer, origen, destino, length):
         info_destino = {'pais': pais_destino,
                         'origen':lt.newList(),
                         'peso': length}
-        capital_origen = om.get(analyzer['countriesinfo'], pais_origen)['value']['CapitalName']
-        capital_destino = om.get(analyzer['countriesinfo'], pais_destino)['value']['CapitalName']
-        entry = om.get(analyzer['capitales'], capital_origen)
+        capital_origen = mp.get(analyzer['countriesinfo'], pais_origen)['value']['CapitalName'].lower().strip()
+        capital_destino = mp.get(analyzer['countriesinfo'], pais_destino)['value']['CapitalName'].lower().strip()
+        entry = mp.get(analyzer['capitales'], capital_origen)
         if entry is None:
             info_origen = {'pais': pais_origen,
                         'origen':lt.newList(),
                         'peso': length}
-            om.put(analyzer['capitales'], capital_origen, info_origen)
+            mp.put(analyzer['capitales'], capital_origen, info_origen)
         lt.addLast(entry['value']['origen'], origen)
         if entry['value']['peso'] < length:
             entry['value']['peso'] = length
         
-        entrada = om.get(analyzer['capitales'], capital_destino)
+        entrada = mp.get(analyzer['capitales'], capital_destino)
         if entrada is None:
             info_destino = {'pais': pais_destino,
                             'origen':lt.newList(),
                             'peso': length}
-            om.put(analyzer['capitales'], capital_destino, info_destino)
+            mp.put(analyzer['capitales'], capital_destino, info_destino)
         lt.addLast(entrada['value']['origen'], destino)
         if entrada['value']['peso'] < length:
             entrada['value']['peso'] = length
 
 def conectarCapitales(analyzer):
-    llaves = om.keySet(analyzer['capitales'])
+    llaves = mp.keySet(analyzer['capitales'])
     for key in llaves:
-        if om.get(analyzer['capitales'], key) is not None:
-            entry = om.get(analyzer['capitales'], key)['value']
+        if mp.get(analyzer['capitales'], key) is not None:
+            entry = mp.get(analyzer['capitales'], key)['value']
             for point in entry['origen']:
                 if not gr.containsVertex(analyzer['cableconections'],key):
                     gr.insertVertex(analyzer['cableconections'],key)
@@ -181,20 +183,20 @@ def loadlandings(analyzer, landing):
  
 def addCountry(analyzer, country, idlanding):
     paises = analyzer['countries']
-    entry = om.get(paises, country)
+    entry = mp.get(paises, country)
     if entry is None:
         lista = lt.newList()
         lt.addLast(lista, idlanding)
-        om.put(paises, country, lista)
+        mp.put(paises, country, lista)
     else:
         lt.addLast(entry['value'], idlanding)
     #para asegurarme que solo este agregando
     #lo cambie a un order map 
 
 def loadCountries(analyzer, country):
-    entry = om.get(analyzer['countriesinfo'], country['CountryName'])
+    entry = mp.get(analyzer['countriesinfo'], country['CountryName'].lower().strip())
     if entry is None:
-        om.put(analyzer['countriesinfo'], country['CountryName'], country)
+        mp.put(analyzer['countriesinfo'], country['CountryName'].lower().strip(), country)
     return analyzer
 
 
@@ -214,7 +216,10 @@ def landingPoints(analyzer):
     """
     Retorna el total de landing points (vertices) del grafo
     """
+    
     return gr.numVertices(analyzer['cableconections'])
+
+
 
 
 def totalConnections(analyzer):
@@ -224,7 +229,7 @@ def totalConnections(analyzer):
     return gr.numEdges(analyzer['cableconections'])
 
 def totalCountries(analyzer):
-    return om.size(analyzer['countries'])
+    return mp.size(analyzer['countries'])
 
 def informacionLanding(analyzer):
     primero = mp.get(analyzer['landing'], '3316')
@@ -232,7 +237,7 @@ def informacionLanding(analyzer):
     return informacion
 
 def informacionCountries(analyzer):
-    primero = om.get(analyzer['countriesinfo'], 'Chuuk')
+    primero = mp.get(analyzer['countriesinfo'], 'chuuk')
     informacion = primero['value']
     return informacion
 
@@ -250,6 +255,29 @@ def sameCluster(analyzer, origen, destino):
     if lt.isPresent(adyacentes, destino):
         relacion = True
     return relacion
+
+def minimumCostPaths(analyzer, initialStation):
+    """
+    Calcula los caminos de costo mínimo desde la estacion initialStation
+    a todos los demas vertices del grafo
+    """
+    analyzer['paths'] = djk.Dijkstra(analyzer['cableconections'], initialStation)
+    return analyzer
+
+def minimumPath(analyzer, origin, destination):
+    """
+    Retorna el camino de costo minimo entre la estacion de inicio
+    y la estacion destino
+    Se debe ejecutar primero la funcion minimumCostPaths
+    """
+
+    c1 = me.getValue(mp.get(analyzer['countriesinfo'], origin.lower()))['CapitalName']
+    c2 = me.getValue(mp.get(analyzer['countriesinfo'], destination.lower()))['CapitalName']
+
+    minimumCostPaths(analyzer, c1.lower().strip())
+    path = djk.pathTo(analyzer['paths'], c2.lower().strip())
+    return path
+
 
 """
 def sameCluster(analyzer, origen, destino):

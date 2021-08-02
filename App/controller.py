@@ -101,3 +101,6 @@ def connectedComponents(analyzer):
     
 def sameCluster(analyzer, origen, destino):
     return model.sameCluster(analyzer, origen, destino)
+
+def minimumPath(analyzer, c1, c2):
+    return model.minimumPath(analyzer, c1, c2)
